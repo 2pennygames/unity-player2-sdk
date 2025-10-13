@@ -208,7 +208,7 @@ namespace player2_sdk
             OnChangedCustomCharacter.Invoke(character, npcId);
         }
 
-        private void OnChatMessageSubmitted(string message)
+        internal void OnChatMessageSubmitted(string message)
         {
             _ = SendChatMessageAsync(message);
         }
