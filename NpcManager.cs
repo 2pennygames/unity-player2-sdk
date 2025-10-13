@@ -1,3 +1,5 @@
+#pragma warning disable CS0618
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -213,7 +215,10 @@ namespace player2_sdk
             Debug.Log($"NpcManager initialized with clientId: {clientId}");
 
             // Automatically start authentication if not already started
-            StartCoroutine(AutoStartAuthentication());
+            if (!GameManager.debugging)
+            {
+                StartCoroutine(AutoStartAuthentication());
+            }
         }
 
         private void OnDestroy()
