@@ -44,7 +44,6 @@ namespace player2_sdk
         [Header("State Config")] [SerializeField]
         private NpcManager npcManager;
 
-
         [Header("NPC Configuration")] [SerializeField]
         public bool customNpc;
 
@@ -73,6 +72,11 @@ namespace player2_sdk
         [SerializeField]
         public string voiceId;
 
+        [Header("Functions")]
+
+        [SerializeField] private List<Function> serializableFunctions;
+
+        [SerializeField] internal UnityEvent<FunctionCall> functionHandler;
 
         [Header("Events")] [SerializeField] public TMP_InputField inputField;
 
@@ -141,7 +145,7 @@ namespace player2_sdk
 
             if (inputField != null)
             {
-                inputField.onEndEdit.AddListener(OnChatMessageSubmitted);
+                inputField.onEndEdit.AddListener(SendMessageToNPC);
                 inputField.onEndEdit.AddListener(_ => inputField.text = string.Empty);
             }
             else
@@ -208,9 +212,18 @@ namespace player2_sdk
             OnChangedCustomCharacter.Invoke(character, npcId);
         }
 
-        internal void OnChatMessageSubmitted(string message)
+        internal void SendMessageToNPC(string message)
         {
             _ = SendChatMessageAsync(message);
+        }
+
+        private List<SerializableFunction> GetSerializableFunctions()
+        {
+            List<SerializableFunction> serializableFunctionsCopy = new List<SerializableFunction>();
+            foreach (var function in serializableFunctions) serializableFunctionsCopy.Add(function.ToSerializableFunction());
+            if (serializableFunctions.Count > 0) return serializableFunctionsCopy;
+
+            return null;
         }
 
         private async Awaitable SpawnNpcAsync()
@@ -242,7 +255,8 @@ namespace player2_sdk
                 name = fullName,
                 character_description = characterDescription,
                 system_prompt = systemPrompt,
-                commands = npcManager.GetSerializableFunctions(),
+                commands = GetSerializableFunctions(),
+
                 tts = new TTSInfo
                 {
                     speed = 1.0,

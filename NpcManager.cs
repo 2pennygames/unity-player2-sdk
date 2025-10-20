@@ -88,14 +88,6 @@ namespace player2_sdk
         [Tooltip("If true, the NPCs will keep track of game state information in the conversation history.")]
         public bool keepGameState;
 
-        [Header("Functions")] [SerializeField] public List<Function> functions;
-
-
-        [SerializeField]
-        [Tooltip(
-            "This event is triggered when a function call is received from the NPC. See the `ExampleFunctionHandler` script for how to handle these calls.")]
-        public UnityEvent<FunctionCall> functionHandler;
-
         public readonly JsonSerializerSettings JsonSerializerSettings = new()
         {
             NullValueHandling = NullValueHandling.Ignore,
@@ -234,15 +226,6 @@ namespace player2_sdk
                 Debug.LogError("NpcManager requires a Game ID to be set.", this);
                 
             }
-        }
-
-        public List<SerializableFunction> GetSerializableFunctions()
-        {
-            var serializableFunctions = new List<SerializableFunction>();
-            foreach (var function in functions) serializableFunctions.Add(function.ToSerializableFunction());
-            if (serializableFunctions.Count > 0) return serializableFunctions;
-
-            return null;
         }
 
         public string GetBaseUrl()
@@ -454,6 +437,7 @@ namespace player2_sdk
                     try
                     {
                         var call = functionCall.ToFunctionCall(npcObject);
+                        UnityEvent<FunctionCall> functionHandler = npcObject.GetComponent<Player2Npc>().functionHandler;
                         functionHandler?.Invoke(call);
                     }
                     catch (Exception ex)
