@@ -29,6 +29,14 @@ namespace player2_sdk
         [Tooltip("If true, this function will never respond with a message when called")]
         public bool neverRespondWithMessage;
 
+        public Function(string name, string description, List<FunctionArgument> functionArguments, bool neverRespondWithMessage)
+        {
+            this.name = name;
+            this.description = description;
+            this.functionArguments = functionArguments;
+            this.neverRespondWithMessage = neverRespondWithMessage;
+        }
+
         public SerializableFunction ToSerializableFunction()
         {
             var props = new Dictionary<string, SerializedArguments>();
@@ -66,6 +74,14 @@ namespace player2_sdk
         public string argumentType;
         public string argumentDescription;
         public bool required;
+
+        public FunctionArgument(string argumentName, string argumentType, string argumentDescription, bool required)
+        {
+            this.argumentName = argumentName;
+            this.argumentType = argumentType;
+            this.argumentDescription = argumentDescription;
+            this.required = required;
+        }
     }
 
 

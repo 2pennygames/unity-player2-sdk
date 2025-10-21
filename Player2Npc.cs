@@ -74,9 +74,9 @@ namespace player2_sdk
 
         [Header("Functions")]
 
-        [SerializeField] private List<Function> serializableFunctions;
+        private List<SerializableFunction> serializableFunctions;
 
-        [SerializeField] internal UnityEvent<FunctionCall> functionHandler;
+        internal UnityEvent<FunctionCall> functionHandler;
 
         [Header("Events")] [SerializeField] public TMP_InputField inputField;
 
@@ -101,6 +101,9 @@ namespace player2_sdk
 
         private async void Awake()
         {
+            functionHandler = new UnityEvent<FunctionCall>();
+            serializableFunctions = new List<SerializableFunction>();
+
             Debug.Log("Starting Player2Npc with NPC: " + fullName);
             if (npcManager == null)
             {
@@ -157,6 +160,11 @@ namespace player2_sdk
 #if UNITY_EDITOR
             AutoFetchVoicesInEditor();
 #endif
+        }
+
+        internal void AddSerializableFunction(Function function)
+        {
+            serializableFunctions.Add(function.ToSerializableFunction());
         }
 
         /// <summary>
@@ -217,15 +225,6 @@ namespace player2_sdk
             _ = SendChatMessageAsync(message);
         }
 
-        private List<SerializableFunction> GetSerializableFunctions()
-        {
-            List<SerializableFunction> serializableFunctionsCopy = new List<SerializableFunction>();
-            foreach (var function in serializableFunctions) serializableFunctionsCopy.Add(function.ToSerializableFunction());
-            if (serializableFunctions.Count > 0) return serializableFunctionsCopy;
-
-            return null;
-        }
-
         private async Awaitable SpawnNpcAsync()
         {
             if (npcManager == null)
@@ -255,7 +254,7 @@ namespace player2_sdk
                 name = fullName,
                 character_description = characterDescription,
                 system_prompt = systemPrompt,
-                commands = GetSerializableFunctions(),
+                commands = serializableFunctions,
 
                 tts = new TTSInfo
                 {
@@ -330,7 +329,7 @@ namespace player2_sdk
 
                 var chatRequest = new ChatRequest
                 {
-                    sender_name = fullName,
+                    sender_name = "",
                     sender_message = message,
                     tts = null
                 };
