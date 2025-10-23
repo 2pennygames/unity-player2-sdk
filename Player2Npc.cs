@@ -148,8 +148,8 @@ namespace player2_sdk
 
             if (inputField != null)
             {
-                inputField.onEndEdit.AddListener(SendMessageToNPC);
-                inputField.onEndEdit.AddListener(_ => inputField.text = string.Empty);
+                inputField.onSubmit.AddListener(SendMessageToNPC);
+                inputField.onSubmit.AddListener(_ => inputField.text = string.Empty);
             }
             else
             {
