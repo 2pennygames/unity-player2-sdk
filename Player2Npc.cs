@@ -78,9 +78,7 @@ namespace player2_sdk
 
         internal UnityEvent<FunctionCall> functionHandler;
 
-        [Header("Events")] [SerializeField] public TMP_InputField inputField;
-
-        [SerializeField] public TextMeshProUGUI outputMessage;
+        // internal TMP_InputField inputField;
 
         [Header("Debugging")]
         [Tooltip(
@@ -133,7 +131,6 @@ namespace player2_sdk
                     characterDescription = character.description;
                     voiceId = character.voice_ids.Count > 0 ? character.voice_ids[0] : voiceId;
                     _npcID = npcId;
-                    outputMessage.text = "";
 
                     Debug.Log($"Changed custom NPC to '{fullName}' with ID: {_npcID}");
                 });
@@ -144,16 +141,6 @@ namespace player2_sdk
                     await SpawnNpcAsync();
                 else
                     npcManager.spawnNpcs.AddListener(async () => { await SpawnNpcAsync(); });
-            }
-
-            if (inputField != null)
-            {
-                inputField.onSubmit.AddListener(SendMessageToNPC);
-                inputField.onSubmit.AddListener(_ => inputField.text = string.Empty);
-            }
-            else
-            {
-                Debug.LogWarning("InputField not assigned on Player2Npc; chat input disabled.", this);
             }
 
             // Auto-fetch voices in Editor on first load
@@ -299,7 +286,7 @@ namespace player2_sdk
                 Debug.Log($"NPC spawned successfully with ID: {_npcID}");
 
                 if (!string.IsNullOrEmpty(_npcID) && npcManager != null)
-                    npcManager.RegisterNpc(_npcID, outputMessage, gameObject);
+                    npcManager.RegisterNpc(_npcID, gameObject);
                 else
                     Debug.LogError($"Invalid NPC ID or null npcManager: ID={_npcID}, Manager={npcManager}");
             }

@@ -12,6 +12,14 @@ using UnityEngine.Events;
 using UnityEditor;
 #endif
 
+public enum ChatState
+{
+    INACTIVE,
+    BEGIN,
+    INTERACTING,
+    PROCESSING
+}
+
 namespace player2_sdk
 {
     [Serializable]
@@ -87,6 +95,58 @@ namespace player2_sdk
 
     public class NpcManager : MonoBehaviour
     {
+        private ChatState _chatState = ChatState.INACTIVE;
+        internal ChatState CurrentChatState {
+            get
+            {
+                return _chatState;
+            }
+
+            set
+            {
+                switch (value)
+                {
+                    case ChatState.INACTIVE:
+                        Debug.Log($"NpcManager:: ChatState set to INACTIVE. Enabling player interaction");
+
+                        player.AllowInteraction();
+                        UIManager.Instance.DisableTrustSlider();
+
+                        break;
+
+                    case ChatState.BEGIN:
+                        Debug.Log($"NpcManager:: ChatState set to BEGIN. Enabling inputField and disabling interaction");
+
+                        inputField.interactable = true;
+                        player.DisallowInteraction();
+                        player.AllowMovement();
+
+                        UIManager.Instance.EnableTrustSlider();
+
+                        break;
+
+                    case ChatState.INTERACTING:
+                        Debug.Log($"NpcManager:: ChatState set to INTERACTING. Disabling player movement");
+
+                        player.DisallowMovement();
+
+                        break;
+
+                    case ChatState.PROCESSING:
+                        Debug.Log($"NpcManager:: ChatState set to PROCESSING. Disabling inputField and enabling player movement");
+
+                        inputField.interactable = false;
+                        player.AllowMovement();
+
+                        break;
+                }
+
+                _chatState = value;
+            }
+        }
+
+        [SerializeField] private Player player;
+
         private const string BaseUrl = "https://api.player2.game/v1";
 
         [Header("Config")]
@@ -103,6 +163,10 @@ namespace player2_sdk
         [SerializeField]
         [Tooltip("If true, the NPCs will keep track of game state information in the conversation history.")]
         public bool keepGameState;
+
+        [Header("TMP")]
+        [SerializeField] internal TMP_InputField inputField;
+        [SerializeField] private TextMeshProUGUI outputField;
 
         public readonly JsonSerializerSettings JsonSerializerSettings = new()
         {
@@ -123,6 +187,10 @@ namespace player2_sdk
 
         public string ApiKey { get; private set; }
 
+        internal void SetChatState(ChatState chatState)
+        {
+            this.CurrentChatState = chatState;
+        }
 
         private void Awake()
         {
@@ -226,6 +294,55 @@ namespace player2_sdk
             if (!GameManager.debugging)
             {
                 StartCoroutine(AutoStartAuthentication());
+            }
+
+            inputField.onSelect.AddListener(InputFieldSelectHandler);
+            inputField.onDeselect.AddListener(InputFieldDeselectHandler);
+            inputField.onSubmit.AddListener(InputFieldSubmitHandler);
+        }
+
+        private void InputFieldSelectHandler(string text)
+        {
+            SetChatState(ChatState.INTERACTING);
+        }
+
+        private void InputFieldDeselectHandler(string text)
+        {
+            Debug.Log($"NpcManager:: InputFieldDeselectHandler, CurrentChatState: {CurrentChatState}");
+            if (CurrentChatState == ChatState.INTERACTING)
+            {
+                // SetChatState(ChatState.BEGIN);
+            }
+        }
+
+        private void InputFieldSubmitHandler(string message)
+        {
+            if (UIManager.Instance.currentInteractingSummonable)
+            {
+                SetChatState(ChatState.PROCESSING);
+
+                StartCoroutine(BeginThinkingTextAnimation());
+
+                UIManager.Instance.currentInteractingSummonable.player2Npc.SendMessageToNPC(message);
+            } else
+            {
+                Debug.LogError("NpcManager:: OnSubmit called when there is no interacting summonable");
+            }
+        }
+
+        private IEnumerator BeginThinkingTextAnimation()
+        {
+            const string baseText = "Thinking";
+            const int dotLength = 3;
+            const float thinkingAnimtationDuration = 0.5f;
+
+            int dotCount = 0;
+
+            while (CurrentChatState == ChatState.PROCESSING)
+            {
+                outputField.text = baseText + new string('.', dotCount);
+                dotCount = (dotCount + 1) % (dotLength + 1);
+                yield return new WaitForSeconds(thinkingAnimtationDuration);
             }
         }
 
@@ -343,7 +460,7 @@ namespace player2_sdk
         }
 
 
-        public void RegisterNpc(string id, TextMeshProUGUI onNpcResponse, GameObject npcObject)
+        public void RegisterNpc(string id, GameObject npcObject)
         {
             if (_responseListener == null)
             {
@@ -357,7 +474,7 @@ namespace player2_sdk
                 return;
             }
 
-            var uiAttached = onNpcResponse != null;
+            var uiAttached = outputField != null;
             if (!uiAttached)
                 Debug.LogWarning(
                     $"Registering NPC {id} without a TextMeshProUGUI target; responses will not display in UI.");
@@ -366,7 +483,7 @@ namespace player2_sdk
 
             var onNpcApiResponse = new UnityEvent<NpcApiChatResponse>();
             onNpcApiResponse.AddListener(response =>
-                HandleNpcApiResponse(id, response, uiAttached, onNpcResponse, npcObject));
+                HandleNpcApiResponse(id, response, uiAttached, outputField, npcObject));
 
             _responseListener.RegisterNpc(id, onNpcApiResponse);
 
@@ -379,7 +496,7 @@ namespace player2_sdk
         }
 
         private void HandleNpcApiResponse(string id, NpcApiChatResponse response, bool uiAttached,
-            TextMeshProUGUI onNpcResponse, GameObject npcObject)
+            TextMeshProUGUI outputField, GameObject npcObject)
         {
             try
             {
@@ -397,10 +514,12 @@ namespace player2_sdk
 
                 if (!string.IsNullOrEmpty(response.message))
                 {
-                    if (uiAttached && onNpcResponse != null)
+                    if (uiAttached && outputField != null)
                     {
                         Debug.Log($"Updating UI for NPC {id}: {response.message}");
-                        onNpcResponse.text = response.message;
+                        outputField.text = response.message;
+
+                        SetChatState(ChatState.BEGIN);
                     }
                     else
                     {
