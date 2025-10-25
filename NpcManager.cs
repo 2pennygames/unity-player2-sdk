@@ -107,18 +107,18 @@ namespace player2_sdk
                 switch (value)
                 {
                     case ChatState.INACTIVE:
-                        Debug.Log($"NpcManager:: ChatState set to INACTIVE. Enabling player interaction");
+                        Logger.Log(this, "ChatState set to INACTIVE. Enabling player interaction");
 
-                        player.AllowInteraction();
+                        // player.AllowInteraction();
                         UIManager.Instance.DisableTrustSlider();
 
                         break;
 
                     case ChatState.BEGIN:
-                        Debug.Log($"NpcManager:: ChatState set to BEGIN. Enabling inputField and disabling interaction");
+                        Logger.Log(this, "ChatState set to BEGIN. Enabling inputField and disabling interaction");
 
                         inputField.interactable = true;
-                        player.DisallowInteraction();
+                        // player.DisallowInteraction();
                         player.AllowMovement();
 
                         UIManager.Instance.EnableTrustSlider();
@@ -126,14 +126,14 @@ namespace player2_sdk
                         break;
 
                     case ChatState.INTERACTING:
-                        Debug.Log($"NpcManager:: ChatState set to INTERACTING. Disabling player movement");
+                        Logger.Log(this, "NpcManager:: ChatState set to INTERACTING. Disabling player movement");
 
                         player.DisallowMovement();
 
                         break;
 
                     case ChatState.PROCESSING:
-                        Debug.Log($"NpcManager:: ChatState set to PROCESSING. Disabling inputField and enabling player movement");
+                        Logger.Log(this, "NpcManager:: ChatState set to PROCESSING. Disabling inputField and enabling player movement");
 
                         inputField.interactable = false;
                         player.AllowMovement();
@@ -195,6 +195,7 @@ namespace player2_sdk
         private void Awake()
         {
             Debug.Log("=== NpcManager.Awake: Starting initialization ===");
+            Logger.Log(this, "=== NpcManager.Awake: Starting initialization ===");
             Debug.Log($"NpcManager.Awake: Platform: {Application.platform}");
 
 #if UNITY_EDITOR
