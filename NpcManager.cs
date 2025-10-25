@@ -109,7 +109,7 @@ namespace player2_sdk
                     case ChatState.INACTIVE:
                         Logger.Log(this, "ChatState set to INACTIVE. Enabling player interaction");
 
-                        // player.AllowInteraction();
+                        player.AllowInteraction();
                         UIManager.Instance.DisableTrustSlider();
 
                         break;
@@ -118,7 +118,7 @@ namespace player2_sdk
                         Logger.Log(this, "ChatState set to BEGIN. Enabling inputField and disabling interaction");
 
                         inputField.interactable = true;
-                        // player.DisallowInteraction();
+                        player.DisallowInteraction();
                         player.AllowMovement();
 
                         UIManager.Instance.EnableTrustSlider();
