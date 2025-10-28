@@ -463,6 +463,8 @@ namespace player2_sdk
 
         public void RegisterNpc(string id, GameObject npcObject)
         {
+            Logger.Log(this, $"Registering NPC: {npcObject}");
+
             if (_responseListener == null)
             {
                 Debug.LogError("Response listener is null! Cannot register NPC.");
@@ -499,6 +501,8 @@ namespace player2_sdk
         private void HandleNpcApiResponse(string id, NpcApiChatResponse response, bool uiAttached,
             TextMeshProUGUI outputField, GameObject npcObject)
         {
+            Logger.Log(this, $"Handling response for NPC: {npcObject}, response: {response.message}, commands: {response.command}");
+
             try
             {
                 if (response == null)
@@ -520,7 +524,10 @@ namespace player2_sdk
                         Debug.Log($"Updating UI for NPC {id}: {response.message}");
                         outputField.text = response.message;
 
-                        SetChatState(ChatState.BEGIN);
+                        if (npcObject.GetComponent<Summonable>() != null)
+                        {
+                            SetChatState(ChatState.BEGIN);
+                        }
                     }
                     else
                     {
@@ -567,9 +574,12 @@ namespace player2_sdk
                     StartCoroutine(audioPlayer.PlayAudioFromDataUrl(response.audio.data, audioSource, id));
                 }
 
+                Logger.Log(this, $"Received response for NPC: {npcObject}, response: {response}");
+
                 if (response.command == null || response.command.Count == 0) return;
 
                 foreach (var functionCall in response.command)
+                {
                     try
                     {
                         var call = functionCall.ToFunctionCall(npcObject);
@@ -581,6 +591,7 @@ namespace player2_sdk
                         Debug.LogError(
                             $"Error invoking function call '{functionCall?.name}' for NPC {id}: {ex.Message}");
                     }
+                }
             }
             catch (Exception ex)
             {
