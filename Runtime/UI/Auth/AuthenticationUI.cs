@@ -200,7 +200,7 @@ namespace player2_sdk
             bgRect.offsetMax = Vector2.zero;
 
             var bgImage = background.AddComponent<Image>();
-            bgImage.color = new Color(0.1f, 0.12f, 0.16f, 0.95f); // Dark background like screenshot
+            bgImage.color = new Color(0f, 0f, 0f, 1f); // Dark background like screenshot
 
             authPanel = new GameObject("AuthPanel");
             authPanel.transform.SetParent(canvasObj.transform);

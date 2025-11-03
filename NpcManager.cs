@@ -294,7 +294,7 @@ namespace player2_sdk
             // Automatically start authentication if not already started
             if (!GameManager.debugging)
             {
-                StartCoroutine(AutoStartAuthentication());
+                // StartCoroutine(AutoStartAuthentication());
             }
 
             inputField.onSelect.AddListener(InputFieldSelectHandler);
