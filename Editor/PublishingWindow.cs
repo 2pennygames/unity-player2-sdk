@@ -112,7 +112,7 @@ namespace player2_sdk.Editor
                 var npcManager = targetObject?.GetComponent<NpcManager>();
                 if (npcManager == null)
                 {
-                    Debug.LogError("NpcManager not found.");
+                    //Debug.LogError("NpcManager not found.");
                     return;
                 }
                 
@@ -177,7 +177,7 @@ namespace player2_sdk.Editor
 
             if (summary.result == BuildResult.Succeeded)
             {
-                Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
+                //Debug.Log("Build succeeded: " + summary.totalSize + " bytes");
                 EditorUtility.RevealInFinder(buildPath);
 
                 // Create Builds/WebGL.zip containing all contents of Builds/WebGL/*
@@ -191,16 +191,16 @@ namespace player2_sdk.Editor
                     if (File.Exists(zipPath)) File.Delete(zipPath);
 
                     ZipFile.CreateFromDirectory(buildPath, zipPath, CompressionLevel.Optimal, false);
-                    Debug.Log($"Zipped WebGL build to: {zipPath}");
+                    //Debug.Log($"Zipped WebGL build to: {zipPath}");
                 }
                 catch (Exception e)
                 {
-                    Debug.LogError($"Failed to zip WebGL build: {e}");
+                    //Debug.LogError($"Failed to zip WebGL build: {e}");
                 }
             }
             else if (summary.result == BuildResult.Failed)
             {
-                Debug.Log("Build failed");
+                //Debug.Log("Build failed");
             }
         }
 

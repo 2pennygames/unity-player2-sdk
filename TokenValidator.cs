@@ -16,14 +16,14 @@ namespace player2_sdk
         {
             if (string.IsNullOrEmpty(token) || npcManager == null)
             {
-                Debug.LogError("TokenValidator: Invalid parameters - token or npcManager is null/empty");
+                //Debug.LogError("TokenValidator: Invalid parameters - token or npcManager is null/empty");
                 return false;
             }
 
             try
             {
                 var healthUrl = $"{npcManager.GetBaseUrl()}/health";
-                Debug.Log($"TokenValidator: Performing health check at: {healthUrl}");
+                //Debug.Log($"TokenValidator: Performing health check at: {healthUrl}");
 
                 using (var request = UnityWebRequest.Get(healthUrl))
                 {
@@ -41,20 +41,20 @@ namespace player2_sdk
 
                     if (request.result == UnityWebRequest.Result.Success)
                     {
-                        Debug.Log($"TokenValidator: Health check successful: {request.responseCode}");
+                        //Debug.Log($"TokenValidator: Health check successful: {request.responseCode}");
                         return true;
                     }
 
-                    Debug.LogError(
-                        $"TokenValidator: Health check failed: {request.result} - {request.responseCode} - {request.error}");
-                    if (!string.IsNullOrEmpty(request.downloadHandler?.text))
-                        Debug.LogError($"TokenValidator: Health check response: {request.downloadHandler.text}");
+                    //Debug.LogError(
+                        // $"TokenValidator: Health check failed: {request.result} - {request.responseCode} - {request.error}");
+                    // if (!string.IsNullOrEmpty(request.downloadHandler?.text))
+                        //Debug.LogError($"TokenValidator: Health check response: {request.downloadHandler.text}");
                     return false;
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"TokenValidator: Exception during health check: {ex.Message}");
+                //Debug.LogError($"TokenValidator: Exception during health check: {ex.Message}");
                 return false;
             }
         }
@@ -71,12 +71,12 @@ namespace player2_sdk
 
             if (isValid)
             {
-                Debug.Log("TokenValidator: Token validation passed, invoking NewApiKey");
+                //Debug.Log("TokenValidator: Token validation passed, invoking NewApiKey");
                 npcManager.NewApiKey.Invoke(token);
                 return true;
             }
 
-            Debug.LogError("TokenValidator: Token validation failed, not invoking NewApiKey");
+            //Debug.LogError("TokenValidator: Token validation failed, not invoking NewApiKey");
             return false;
         }
     }

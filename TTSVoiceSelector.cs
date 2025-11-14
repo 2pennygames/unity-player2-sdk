@@ -98,21 +98,21 @@ namespace player2_sdk
                         _lastFetchTime = Time.realtimeSinceStartup;
                         FetchError = null;
 
-                        Debug.Log($"TTSVoiceManager: Successfully fetched {CachedVoices?.voices?.Count ?? 0} voices");
+                        //Debug.Log($"TTSVoiceManager: Successfully fetched {CachedVoices?.voices?.Count ?? 0} voices");
 
                         onComplete?.Invoke(CachedVoices);
                     }
                     catch (Exception ex)
                     {
                         FetchError = $"Failed to parse voices response: {ex.Message}";
-                        Debug.LogError($"TTSVoiceManager: {FetchError}");
+                        //Debug.LogError($"TTSVoiceManager: {FetchError}");
                         onComplete?.Invoke(null);
                     }
                 }
                 else
                 {
                     FetchError = $"Failed to fetch voices: {request.error}";
-                    Debug.LogWarning($"TTSVoiceManager: {FetchError} (Is Player2 App running on localhost:4315?)");
+                    //Debug.LogWarning($"TTSVoiceManager: {FetchError} (Is Player2 App running on localhost:4315?)");
                     onComplete?.Invoke(null);
                 }
             }

@@ -18,14 +18,14 @@ namespace player2_sdk
             // Validate input parameters
             if (string.IsNullOrEmpty(dataUrl))
             {
-                Debug.LogError($"Cannot play audio for {identifier}: dataUrl is null or empty");
+                //Debug.LogError($"Cannot play audio for {identifier}: dataUrl is null or empty");
                 yield break;
             }
 
             // Check if this is a valid data URL format
             if (!dataUrl.StartsWith("data:"))
             {
-                Debug.LogError($"Cannot play audio for {identifier}: invalid data URL format (missing 'data:' prefix)");
+                //Debug.LogError($"Cannot play audio for {identifier}: invalid data URL format (missing 'data:' prefix)");
                 yield break;
             }
 
@@ -33,8 +33,8 @@ namespace player2_sdk
             var commaIndex = dataUrl.IndexOf(',');
             if (commaIndex == -1 || commaIndex == dataUrl.Length - 1)
             {
-                Debug.LogError(
-                    $"Cannot play audio for {identifier}: invalid data URL format (missing comma or no data after comma)");
+                //Debug.LogError(
+                    // $"Cannot play audio for {identifier}: invalid data URL format (missing comma or no data after comma)");
                 yield break;
             }
 
@@ -44,7 +44,7 @@ namespace player2_sdk
             // Validate that we have base64 data
             if (string.IsNullOrEmpty(base64String))
             {
-                Debug.LogError($"Cannot play audio for {identifier}: no base64 data found in data URL");
+                //Debug.LogError($"Cannot play audio for {identifier}: no base64 data found in data URL");
                 yield break;
             }
 
@@ -52,7 +52,7 @@ namespace player2_sdk
             // Additional validation: check for valid base64 characters
             if (!IsValidBase64String(base64String))
             {
-                Debug.LogError($"Cannot play audio for {identifier}: extracted string is not valid Base64");
+                //Debug.LogError($"Cannot play audio for {identifier}: extracted string is not valid Base64");
                 yield break;
             }
 
@@ -69,8 +69,8 @@ namespace player2_sdk
             {
                 // Log additional context for Base64 decoding failures
                 var base64Preview = base64String.Length > 50 ? base64String.Substring(0, 50) + "..." : base64String;
-                Debug.LogError(
-                    $"Cannot play audio for {identifier}: Base64 decoding failed: {ex.Message}. Base64 data length: {base64String.Length}, Preview: {base64Preview}");
+                //Debug.LogError(
+                    // $"Cannot play audio for {identifier}: Base64 decoding failed: {ex.Message}. Base64 data length: {base64String.Length}, Preview: {base64Preview}");
                 yield break;
             }
 
@@ -84,8 +84,8 @@ namespace player2_sdk
             }
             catch (Exception ex)
             {
-                Debug.LogError(
-                    $"Cannot play audio for {identifier}: failed to write audio data to temp file: {ex.Message}");
+                //Debug.LogError(
+                    // $"Cannot play audio for {identifier}: failed to write audio data to temp file: {ex.Message}");
                 yield break;
             }
 
@@ -103,23 +103,23 @@ namespace player2_sdk
                         {
                             audioSource.clip = clip;
                             audioSource.Play();
-                            Debug.Log($"Playing audio for {identifier} (duration: {clip.length}s)");
+                            //Debug.Log($"Playing audio for {identifier} (duration: {clip.length}s)");
                         }
                         else
                         {
-                            Debug.LogError(
-                                $"Cannot play audio for {identifier}: failed to create AudioClip from downloaded data");
+                            //Debug.LogError(
+                                // $"Cannot play audio for {identifier}: failed to create AudioClip from downloaded data");
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError($"Cannot play audio for {identifier}: error setting up AudioClip: {ex.Message}");
+                        //Debug.LogError($"Cannot play audio for {identifier}: error setting up AudioClip: {ex.Message}");
                     }
                 }
                 else
                 {
                     var errorDetails = request.error ?? "Unknown UnityWebRequest error";
-                    Debug.LogError($"Cannot play audio for {identifier}: failed to load audio file - {errorDetails}");
+                    //Debug.LogError($"Cannot play audio for {identifier}: failed to load audio file - {errorDetails}");
                 }
             }
 
@@ -130,12 +130,12 @@ namespace player2_sdk
                 if (File.Exists(tempPath))
                 {
                     File.Delete(tempPath);
-                    Debug.Log($"Cleaned up temporary audio file for {identifier}");
+                    //Debug.Log($"Cleaned up temporary audio file for {identifier}");
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"Failed to cleanup temporary audio file for {identifier}: {ex.Message}");
+                //Debug.LogWarning($"Failed to cleanup temporary audio file for {identifier}: {ex.Message}");
             }
 #else
             // For actual WebGL builds, use JavaScript interop to play audio directly in browser
@@ -147,11 +147,11 @@ namespace player2_sdk
                 // Call JavaScript function to play audio
                 PlayAudioWithJavaScript(identifier, base64Audio, audioSource);
 
-                Debug.Log($"Playing audio for {identifier} using JavaScript interop");
+                //Debug.Log($"Playing audio for {identifier} using JavaScript interop");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Cannot play audio for {identifier}: JavaScript interop failed: {ex.Message}");
+                //Debug.LogError($"Cannot play audio for {identifier}: JavaScript interop failed: {ex.Message}");
             }
 #endif
         }
@@ -206,7 +206,7 @@ namespace player2_sdk
             if (missingPadding != 4) // Only add padding if needed
             {
                 base64String = base64String + new string('=', missingPadding);
-                Debug.Log($"Fixed Base64 padding by adding {missingPadding} character(s)");
+                //Debug.Log($"Fixed Base64 padding by adding {missingPadding} character(s)");
             }
 
             return base64String;

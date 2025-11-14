@@ -23,13 +23,13 @@ namespace player2_sdk
             upgradeButton.onClick.AddListener(() => { Application.OpenURL("https://player2.game/profile/ai-power"); });
             if (npcManager == null)
             {
-                Debug.LogError("NpcManager reference is not set in JouleCounting.");
+                Logger.Log(this, "NpcManager reference is not set in JouleCounting.");
                 return;
             }
 
             if (textMesh == null)
             {
-                Debug.LogError("TextMeshProUGUI reference is not set in JouleCounting.");
+                Logger.Log(this, "TextMeshProUGUI reference is not set in JouleCounting.");
                 return;
             }
 
@@ -87,14 +87,14 @@ namespace player2_sdk
 
                 if (req.result != UnityWebRequest.Result.Success)
                 {
-                    Debug.LogError($"GET {url} failed: {req.error}");
+                    Logger.Log(this, $"GET {url} failed: {req.error}");
                     return;
                 }
 
                 var body = req.downloadHandler.text?.Trim();
                 if (string.IsNullOrEmpty(body))
                 {
-                    Debug.LogWarning("/joules returned empty response.");
+                    Logger.Log(this, "/joules returned empty response.");
                     return;
                 }
 
@@ -109,7 +109,7 @@ namespace player2_sdk
                     }
                     catch
                     {
-                        Debug.LogWarning($"Failed to parse /joules response: {body}");
+                        Logger.Log(this, $"Failed to parse /joules response: {body}");
                         return;
                     }
 

@@ -80,23 +80,23 @@ namespace player2_sdk
                 Application.OpenURL(response.verificationUriComplete);
 
                 var token = await GetToken(response);
-                Debug.Log("Token received, validating with health check...");
+                //Debug.Log("Token received, validating with health check...");
 
                 var tokenValid = await TokenValidator.ValidateAndSetTokenAsync(token, npcManager);
                 if (tokenValid)
                 {
-                    Debug.Log("Token validation successful");
+                    //Debug.Log("Token validation successful");
                     authenticationFinished.Invoke();
                 }
                 else
                 {
-                    Debug.LogError("Token validation failed");
+                    //Debug.LogError("Token validation failed");
                     throw new Exception("Token validation failed");
                 }
             }
             catch (Exception e)
             {
-                Debug.LogException(e);
+                //Debug.LogException(e);
             }
         }
 
@@ -104,7 +104,7 @@ namespace player2_sdk
         {
             var url = $"{npcManager.GetBaseUrl()}/login/device/new";
             var initAuth = new InitiateAuthFlow(npcManager);
-            Debug.Log(initAuth);
+            //Debug.Log(initAuth);
             var json = JsonConvert.SerializeObject(initAuth, npcManager.JsonSerializerSettings);
             var bodyRaw = Encoding.UTF8.GetBytes(json);
 
@@ -124,7 +124,7 @@ namespace player2_sdk
                     return response;
                 }
 
-                Debug.LogError("Failed to get auth initiation response");
+                //Debug.LogError("Failed to get auth initiation response");
             }
             else
             {
@@ -132,7 +132,7 @@ namespace player2_sdk
                 var traceInfo = !string.IsNullOrEmpty(traceId) ? $" (X-Player2-Trace-Id: {traceId})" : "";
                 var error =
                     $"Failed to start auth: {request.error} - Response: {request.downloadHandler.text}{traceInfo}";
-                Debug.LogError(error);
+                //Debug.LogError(error);
             }
 
             throw new Exception("Failed to start auth");
@@ -175,7 +175,7 @@ namespace player2_sdk
                         var response = JsonConvert.DeserializeObject<TokenResponse>(request.downloadHandler.text);
                         if (!string.IsNullOrEmpty(response?.p2Key)) return response.p2Key;
                         // Defensive: success but no key — wait and try again within window
-                        Debug.LogWarning("Token endpoint returned success but no key yet. Polling again...");
+                        //Debug.LogWarning("Token endpoint returned success but no key yet. Polling again...");
                     }
                 }
                 else
@@ -203,7 +203,7 @@ namespace player2_sdk
                                 else if (string.Equals(err, "expired_token", StringComparison.OrdinalIgnoreCase) ||
                                          string.Equals(err, "expired_token_code", StringComparison.OrdinalIgnoreCase))
                                 {
-                                    Debug.LogError("Device code expired while polling for token.");
+                                    //Debug.LogError("Device code expired while polling for token.");
                                     return null;
                                 }
                                 // authorization_pending or unknown -> continue polling
@@ -225,8 +225,8 @@ namespace player2_sdk
                         // Other errors are treated as fatal
                         var traceId = request.GetResponseHeader("X-Player2-Trace-Id");
                         var traceInfo = !string.IsNullOrEmpty(traceId) ? $" (X-Player2-Trace-Id: {traceId})" : "";
-                        Debug.LogError(
-                            $"Failed to get token: HTTP {code} - {request.error} - Response: {text}{traceInfo}");
+                        //Debug.LogError(
+                            // $"Failed to get token: HTTP {code} - {request.error} - Response: {text}{traceInfo}");
                         return null;
                     }
                 }
@@ -239,7 +239,7 @@ namespace player2_sdk
                 await Awaitable.WaitForSecondsAsync(wait);
             }
 
-            Debug.LogError("Timed out waiting for token (device code flow expired).");
+            //Debug.LogError("Timed out waiting for token (device code flow expired).");
             return null;
         }
 
@@ -247,19 +247,19 @@ namespace player2_sdk
         private async Awaitable<bool> TryImmediateWebLogin()
         {
             // Skip localhost authentication if running in WebGL on player2.game domain
-            Debug.Log("Login.TryImmediateWebLogin: Checking if localhost authentication should be skipped...");
+            //Debug.Log("Login.TryImmediateWebLogin: Checking if localhost authentication should be skipped...");
             if (npcManager.ShouldSkipAuthentication())
             {
-                Debug.Log(
-                    "Login.TryImmediateWebLogin: Running on player2.game domain, skipping localhost authentication");
-                Debug.Log($"Login.TryImmediateWebLogin: API requests will use: {npcManager.GetBaseUrl()}");
+                //Debug.Log(
+                    // "Login.TryImmediateWebLogin: Running on player2.game domain, skipping localhost authentication");
+                //Debug.Log($"Login.TryImmediateWebLogin: API requests will use: {npcManager.GetBaseUrl()}");
                 authenticationFinished.Invoke();
-                Debug.Log("Login.TryImmediateWebLogin: Authentication bypass completed successfully");
+                //Debug.Log("Login.TryImmediateWebLogin: Authentication bypass completed successfully");
                 return true;
             }
 
-            Debug.Log(
-                "Login.TryImmediateWebLogin: Not on player2.game domain, proceeding with localhost authentication");
+            //Debug.Log(
+                // "Login.TryImmediateWebLogin: Not on player2.game domain, proceeding with localhost authentication");
 
             var url = $"http://localhost:4315/v1/login/web/{npcManager.clientId}";
             using var request = UnityWebRequest.PostWwwForm(url, string.Empty);
@@ -275,30 +275,30 @@ namespace player2_sdk
                         var resp = JsonConvert.DeserializeObject<TokenResponse>(text);
                         if (!string.IsNullOrEmpty(resp?.p2Key))
                         {
-                            Debug.Log("TryImmediateWebLogin: Got token, validating with health check...");
+                            //Debug.Log("TryImmediateWebLogin: Got token, validating with health check...");
                             var tokenValid = await TokenValidator.ValidateAndSetTokenAsync(resp.p2Key, npcManager);
                             if (tokenValid)
                             {
-                                Debug.Log("TryImmediateWebLogin: Token validation successful");
+                                //Debug.Log("TryImmediateWebLogin: Token validation successful");
                                 authenticationFinished.Invoke();
                                 return true;
                             }
 
-                            Debug.LogError("TryImmediateWebLogin: Token validation failed");
+                            //Debug.LogError("TryImmediateWebLogin: Token validation failed");
                             return false;
                         }
 
-                        Debug.Log("Immediate web login response lacked p2Key.");
+                        //Debug.Log("Immediate web login response lacked p2Key.");
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogWarning($"Failed to parse immediate web login response: {ex.Message}");
+                        //Debug.LogWarning($"Failed to parse immediate web login response: {ex.Message}");
                     }
             }
             else
             {
-                Debug.Log(
-                    $"TryImmediateWebLogin: Failed to connect to Player2 App: {request.responseCode} {request.error}");
+                //Debug.Log(
+                    // $"TryImmediateWebLogin: Failed to connect to Player2 App: {request.responseCode} {request.error}");
             }
 
             return false;

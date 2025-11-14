@@ -14,9 +14,7 @@ using UnityEditor;
 
 public enum ChatState
 {
-    INACTIVE,
     BEGIN,
-    INTERACTING,
     PROCESSING
 }
 
@@ -59,7 +57,7 @@ namespace player2_sdk
                 };
             }
 
-            Debug.Log(props);
+            //Debug.Log(props);
             return new SerializableFunction
             {
                 name = name,
@@ -95,7 +93,7 @@ namespace player2_sdk
 
     public class NpcManager : MonoBehaviour
     {
-        private ChatState _chatState = ChatState.INACTIVE;
+        private ChatState _chatState = ChatState.BEGIN;
         internal ChatState CurrentChatState {
             get
             {
@@ -106,37 +104,15 @@ namespace player2_sdk
             {
                 switch (value)
                 {
-                    case ChatState.INACTIVE:
-                        Logger.Log(this, "ChatState set to INACTIVE. Enabling player interaction");
-
-                        player.AllowInteraction();
-                        UIManager.Instance.DisableTrustSlider();
-
-                        break;
-
                     case ChatState.BEGIN:
-                        Logger.Log(this, "ChatState set to BEGIN. Enabling inputField and disabling interaction");
-
+                        inputField.text = "";
                         inputField.interactable = true;
-                        player.DisallowInteraction();
-                        player.AllowMovement();
-
-                        UIManager.Instance.EnableTrustSlider();
-
-                        break;
-
-                    case ChatState.INTERACTING:
-                        Logger.Log(this, "NpcManager:: ChatState set to INTERACTING. Disabling player movement");
-
-                        player.DisallowMovement();
 
                         break;
 
                     case ChatState.PROCESSING:
-                        Logger.Log(this, "NpcManager:: ChatState set to PROCESSING. Disabling inputField and enabling player movement");
-
+                        inputField.text = "";
                         inputField.interactable = false;
-                        player.AllowMovement();
 
                         break;
                 }
@@ -194,39 +170,39 @@ namespace player2_sdk
 
         private void Awake()
         {
-            Debug.Log("=== NpcManager.Awake: Starting initialization ===");
+            //Debug.Log("=== NpcManager.Awake: Starting initialization ===");
             Logger.Log(this, "=== NpcManager.Awake: Starting initialization ===");
-            Debug.Log($"NpcManager.Awake: Platform: {Application.platform}");
+            //Debug.Log($"NpcManager.Awake: Platform: {Application.platform}");
 
 #if UNITY_EDITOR
-            Debug.Log("NpcManager.Awake: Running in Unity Editor");
+            //Debug.Log("NpcManager.Awake: Running in Unity Editor");
             PlayerSettings.insecureHttpOption = InsecureHttpOption.AlwaysAllowed;
 #endif
 
 #if UNITY_WEBGL && !UNITY_EDITOR
-            Debug.Log("NpcManager.Awake: Running in WebGL build (not editor)");
+            //Debug.Log("NpcManager.Awake: Running in WebGL build (not editor)");
             // For WebGL builds, we'll handle certificate validation differently
             // This is set at runtime, not in PlayerSettings
 #endif
 
             // Log domain detection status early
             var isOnPlayer2Game = IsWebGLAndOnPlayer2GameDomain();
-            Debug.Log($"NpcManager.Awake: On player2.game domain: {isOnPlayer2Game}");
-            Debug.Log($"NpcManager.Awake: Base URL will be: {GetBaseUrl()}");
-            Debug.Log($"NpcManager.Awake: Will skip authentication: {ShouldSkipAuthentication()}");
+            //Debug.Log($"NpcManager.Awake: On player2.game domain: {isOnPlayer2Game}");
+            //Debug.Log($"NpcManager.Awake: Base URL will be: {GetBaseUrl()}");
+            //Debug.Log($"NpcManager.Awake: Will skip authentication: {ShouldSkipAuthentication()}");
 
             if (string.IsNullOrEmpty(clientId))
             {
-                Debug.LogError("NpcManager requires a Client ID to be set.", this);
+                //Debug.LogError("NpcManager requires a Client ID to be set.", this);
                 return;
             }
 
             _responseListener = gameObject.GetComponent<Player2NpcResponseListener>();
             if (_responseListener == null)
             {
-                Debug.LogError(
-                    "Player2NpcResponseListener component not found on NPC Manager GameObject. Please attach it in the editor.",
-                    this);
+                //Debug.LogError(
+                    // "Player2NpcResponseListener component not found on NPC Manager GameObject. Please attach it in the editor.",
+                    // this);
                 return;
             }
 
@@ -237,17 +213,17 @@ namespace player2_sdk
 
             NewApiKey.AddListener(async apiKey =>
             {
-                Debug.Log("NpcManager.NewApiKey listener: Received API key");
+                //Debug.Log("NpcManager.NewApiKey listener: Received API key");
                 ApiKey = apiKey;
-                Debug.Log("NpcManager.NewApiKey listener: API key set");
+                //Debug.Log("NpcManager.NewApiKey listener: API key set");
 
                 // For WebGL on player2.game domain, pass empty API key to skip auth headers
                 var skipAuth = ShouldSkipAuthentication();
                 var apiKeyForListener = skipAuth ? "" : apiKey;
-                Debug.Log($"NpcManager.NewApiKey listener: Skip authentication: {skipAuth}");
-                Debug.Log($"NpcManager.NewApiKey listener: Base URL: {GetBaseUrl()}");
-                Debug.Log(
-                    $"NpcManager.NewApiKey listener: Passing to response listener: {(string.IsNullOrEmpty(apiKeyForListener) ? "empty (skipping auth)" : "API key")}");
+                //Debug.Log($"NpcManager.NewApiKey listener: Skip authentication: {skipAuth}");
+                //Debug.Log($"NpcManager.NewApiKey listener: Base URL: {GetBaseUrl()}");
+                //Debug.Log(
+                    // $"NpcManager.NewApiKey listener: Passing to response listener: {(string.IsNullOrEmpty(apiKeyForListener) ? "empty (skipping auth)" : "API key")}");
 
                 // Set the API key on the response listener
                 _responseListener.newApiKey.Invoke(apiKeyForListener);
@@ -258,25 +234,25 @@ namespace player2_sdk
                 // Skip health check if authentication was bypassed (hosted scenario)
                 if (skipAuth && string.IsNullOrEmpty(apiKey))
                 {
-                    Debug.Log(
-                        "NpcManager.NewApiKey listener: Authentication bypassed for hosted scenario, skipping health check");
-                    apiTokenReady.Invoke();
+                    //Debug.Log(
+                        // "NpcManager.NewApiKey listener: Authentication bypassed for hosted scenario, skipping health check");
+                    // apiTokenReady.Invoke();
                 }
                 else
                 {
                     // Verify token works with health check before signaling ready
-                    Debug.Log("NpcManager.NewApiKey listener: Response listener connected, performing health check...");
+                    //Debug.Log("NpcManager.NewApiKey listener: Response listener connected, performing health check...");
                     var healthCheckPassed = await TokenValidator.ValidateTokenAsync(apiKey, this);
 
                     if (healthCheckPassed)
                     {
-                        Debug.Log("NpcManager.NewApiKey listener: Health check passed, signaling API token ready");
+                        //Debug.Log("NpcManager.NewApiKey listener: Health check passed, signaling API token ready");
                         apiTokenReady.Invoke();
                     }
                     else
                     {
-                        Debug.LogError(
-                            "NpcManager.NewApiKey listener: Health check failed, token is not working properly. Not signaling ready.");
+                        //Debug.LogError(
+                            // "NpcManager.NewApiKey listener: Health check failed, token is not working properly. Not signaling ready.");
                     }
                 }
             });
@@ -284,12 +260,12 @@ namespace player2_sdk
             // Listen for when the authentication system signals it's fully ready
             apiTokenReady.AddListener(() =>
             {
-                Debug.Log("NpcManager.apiTokenReady listener: Authentication fully complete, spawning NPCs");
+                //Debug.Log("NpcManager.apiTokenReady listener: Authentication fully complete, spawning NPCs");
                 spawnNpcs.Invoke();
-                Debug.Log("NpcManager.apiTokenReady listener: spawnNpcs invoked");
+                //Debug.Log("NpcManager.apiTokenReady listener: spawnNpcs invoked");
             });
 
-            Debug.Log($"NpcManager initialized with clientId: {clientId}");
+            //Debug.Log($"NpcManager initialized with clientId: {clientId}");
 
             // Automatically start authentication if not already started
             if (!GameManager.debugging)
@@ -297,41 +273,21 @@ namespace player2_sdk
                 // StartCoroutine(AutoStartAuthentication());
             }
 
-            inputField.onSelect.AddListener(InputFieldSelectHandler);
-            inputField.onDeselect.AddListener(InputFieldDeselectHandler);
             inputField.onSubmit.AddListener(InputFieldSubmitHandler);
-        }
-
-        private void InputFieldSelectHandler(string text)
-        {
-            SetChatState(ChatState.INTERACTING);
-        }
-
-        private void InputFieldDeselectHandler(string text)
-        {
-            Debug.Log($"NpcManager:: InputFieldDeselectHandler, CurrentChatState: {CurrentChatState}");
-            if (CurrentChatState == ChatState.INTERACTING)
-            {
-                // SetChatState(ChatState.BEGIN);
-            }
         }
 
         private void InputFieldSubmitHandler(string message)
         {
             if (UIManager.Instance.currentInteractingSummonable)
             {
-                SetChatState(ChatState.PROCESSING);
-
-                StartCoroutine(BeginThinkingTextAnimation());
-
                 UIManager.Instance.currentInteractingSummonable.player2Npc.SendMessageToNPC(message);
             } else
             {
-                Debug.LogError("NpcManager:: OnSubmit called when there is no interacting summonable");
+                //Debug.LogError("NpcManager:: OnSubmit called when there is no interacting summonable");
             }
         }
 
-        private IEnumerator BeginThinkingTextAnimation()
+        internal IEnumerator PlayThinkingTextAnimation()
         {
             const string baseText = "Thinking";
             const int dotLength = 3;
@@ -357,14 +313,14 @@ namespace player2_sdk
         {
             if (string.IsNullOrEmpty(clientId))
             {
-                Debug.LogError("NpcManager requires a Game ID to be set.", this);
+                //Debug.LogError("NpcManager requires a Game ID to be set.", this);
                 
             }
         }
 
         public string GetBaseUrl()
         {
-            Debug.Log($"NpcManager.GetBaseUrl: Using standard API URL: {BaseUrl}");
+            //Debug.Log($"NpcManager.GetBaseUrl: Using standard API URL: {BaseUrl}");
             return BaseUrl;
         }
 
@@ -374,7 +330,7 @@ namespace player2_sdk
         public bool ShouldSkipAuthentication()
         {
             var shouldSkip = IsWebGLAndOnPlayer2GameDomain();
-            Debug.Log($"NpcManager.ShouldSkipAuthentication: {shouldSkip}");
+            //Debug.Log($"NpcManager.ShouldSkipAuthentication: {shouldSkip}");
             return shouldSkip;
         }
 
@@ -384,40 +340,40 @@ namespace player2_sdk
         private bool IsWebGLAndOnPlayer2GameDomain()
         {
 #if UNITY_WEBGL && !UNITY_EDITOR
-            Debug.Log("IsWebGLAndOnPlayer2GameDomain: Running in WebGL build (not editor)");
+            //Debug.Log("IsWebGLAndOnPlayer2GameDomain: Running in WebGL build (not editor)");
             try
             {
                 // Use Unity's built-in Application.absoluteURL for reliable URL detection
                 string absoluteUrl = Application.absoluteURL;
-                Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Retrieved absolute URL: '{absoluteUrl}'");
+                //Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Retrieved absolute URL: '{absoluteUrl}'");
                 
                 if (string.IsNullOrEmpty(absoluteUrl))
                 {
-                    Debug.LogWarning("IsWebGLAndOnPlayer2GameDomain: Application.absoluteURL is null or empty");
+                    //Debug.LogWarning("IsWebGLAndOnPlayer2GameDomain: Application.absoluteURL is null or empty");
                     return false;
                 }
                 
                 // Parse the URL to get the host
                 System.Uri uri = new System.Uri(absoluteUrl);
                 string host = uri.Host;
-                Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Parsed host: '{host}'");
+                //Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Parsed host: '{host}'");
                 
                 bool isPlayer2Game = host.Equals("player2.game", StringComparison.OrdinalIgnoreCase) || 
                                      host.EndsWith(".player2.game", StringComparison.OrdinalIgnoreCase);
-                Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Is legitimate player2.game domain: {isPlayer2Game}");
-                Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Final result: {isPlayer2Game}");
+                //Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Is legitimate player2.game domain: {isPlayer2Game}");
+                //Debug.Log($"IsWebGLAndOnPlayer2GameDomain: Final result: {isPlayer2Game}");
                 
                 return isPlayer2Game;
             }
             catch (Exception ex)
             {
-                Debug.LogWarning($"IsWebGLAndOnPlayer2GameDomain: Failed to detect WebGL domain: {ex.Message}");
-                Debug.LogWarning($"IsWebGLAndOnPlayer2GameDomain: Stack trace: {ex.StackTrace}");
+                //Debug.LogWarning($"IsWebGLAndOnPlayer2GameDomain: Failed to detect WebGL domain: {ex.Message}");
+                //Debug.LogWarning($"IsWebGLAndOnPlayer2GameDomain: Stack trace: {ex.StackTrace}");
                 return false;
             }
 #else
-            Debug.Log(
-                "IsWebGLAndOnPlayer2GameDomain: Not running in WebGL build (editor or other platform), returning false");
+            //Debug.Log(
+                // "IsWebGLAndOnPlayer2GameDomain: Not running in WebGL build (editor or other platform), returning false");
             return false;
 #endif
         }
@@ -436,10 +392,10 @@ namespace player2_sdk
                 attempts++;
             }
 
-            if (!_responseListener.IsListening)
-                Debug.LogWarning("Response listener failed to connect within timeout, proceeding anyway");
-            else
-                Debug.Log($"Response listener connected after {attempts * 100}ms");
+            // if (!_responseListener.IsListening)
+                //Debug.LogWarning("Response listener failed to connect within timeout, proceeding anyway");
+            // else
+                //Debug.Log($"Response listener connected after {attempts * 100}ms");
         }
 
         private IEnumerator AutoStartAuthentication()
@@ -451,12 +407,12 @@ namespace player2_sdk
             var existingAuth = FindObjectOfType<AuthenticationUI>();
             if (existingAuth != null)
             {
-                Debug.Log("NpcManager.AutoStartAuthentication: AuthenticationUI already exists, not auto-creating");
+                //Debug.Log("NpcManager.AutoStartAuthentication: AuthenticationUI already exists, not auto-creating");
                 yield break;
             }
 
             // Auto-setup authentication
-            Debug.Log("NpcManager.AutoStartAuthentication: No AuthenticationUI found, auto-creating one");
+            //Debug.Log("NpcManager.AutoStartAuthentication: No AuthenticationUI found, auto-creating one");
             AuthenticationUI.Setup(this);
         }
 
@@ -467,22 +423,22 @@ namespace player2_sdk
 
             if (_responseListener == null)
             {
-                Debug.LogError("Response listener is null! Cannot register NPC.");
+                //Debug.LogError("Response listener is null! Cannot register NPC.");
                 return;
             }
 
             if (string.IsNullOrEmpty(id))
             {
-                Debug.LogError("Cannot register NPC with empty ID");
+                //Debug.LogError("Cannot register NPC with empty ID");
                 return;
             }
 
             var uiAttached = outputField != null;
-            if (!uiAttached)
-                Debug.LogWarning(
-                    $"Registering NPC {id} without a TextMeshProUGUI target; responses will not display in UI.");
+            // if (!uiAttached)
+                //Debug.LogWarning(
+                    // $"Registering NPC {id} without a TextMeshProUGUI target; responses will not display in UI.");
 
-            Debug.Log($"Registering NPC with ID: {id}");
+            //Debug.Log($"Registering NPC with ID: {id}");
 
             var onNpcApiResponse = new UnityEvent<NpcApiChatResponse>();
             onNpcApiResponse.AddListener(response =>
@@ -493,7 +449,7 @@ namespace player2_sdk
             // Ensure listener is running after registering
             if (!_responseListener.IsListening)
             {
-                Debug.Log("Listener was not running, starting it now");
+                //Debug.Log("Listener was not running, starting it now");
                 _responseListener.StartListening();
             }
         }
@@ -507,13 +463,13 @@ namespace player2_sdk
             {
                 if (response == null)
                 {
-                    Debug.LogWarning($"Received null response object for NPC {id}");
+                    //Debug.LogWarning($"Received null response object for NPC {id}");
                     return;
                 }
 
                 if (npcObject == null)
                 {
-                    Debug.LogWarning($"NPC object is null for NPC {id}");
+                    //Debug.LogWarning($"NPC object is null for NPC {id}");
                     return;
                 }
 
@@ -521,17 +477,22 @@ namespace player2_sdk
                 {
                     if (uiAttached && outputField != null)
                     {
-                        Debug.Log($"Updating UI for NPC {id}: {response.message}");
-                        outputField.text = response.message;
+                        Logger.Log(this, $"Reponse: {response.message}");
+                        
+                        string cleanedMessage = response.message.Replace("<", "").Replace(">", "");
+                        outputField.text = cleanedMessage;
 
                         if (npcObject.GetComponent<Summonable>() != null)
                         {
                             SetChatState(ChatState.BEGIN);
+                            UIManager.Instance.EnableSendButton();
+                        } else
+                        {
                         }
                     }
                     else
                     {
-                        Debug.Log($"(No UI) NPC {id} message: {response.message}");
+                        //Debug.Log($"(No UI) NPC {id} message: {response.message}");
                     }
                 }
 
@@ -542,8 +503,8 @@ namespace player2_sdk
                     var audioDataPreview = response.audio.data.Length > 100
                         ? response.audio.data.Substring(0, 100) + "..."
                         : response.audio.data;
-                    Debug.Log(
-                        $"NPC {id} - Audio data received: Length={response.audio.data.Length}, Preview={audioDataPreview}");
+                    //Debug.Log(
+                        // $"NPC {id} - Audio data received: Length={response.audio.data.Length}, Preview={audioDataPreview}");
 
                     // Validate audio data format
                     if (response.audio.data.StartsWith("data:"))
@@ -553,16 +514,16 @@ namespace player2_sdk
                         {
                             var mimeType = response.audio.data.Substring(0, commaIndex);
                             var base64Data = response.audio.data.Substring(commaIndex + 1);
-                            Debug.Log($"NPC {id} - Audio format: {mimeType}, Base64 length: {base64Data.Length}");
+                            //Debug.Log($"NPC {id} - Audio format: {mimeType}, Base64 length: {base64Data.Length}");
                         }
                         else
                         {
-                            Debug.LogWarning($"NPC {id} - Invalid data URL format: no comma separator found");
+                            //Debug.LogWarning($"NPC {id} - Invalid data URL format: no comma separator found");
                         }
                     }
                     else
                     {
-                        Debug.LogWarning($"NPC {id} - Audio data does not start with 'data:' prefix");
+                        //Debug.LogWarning($"NPC {id} - Audio data does not start with 'data:' prefix");
                     }
 
                     // Check if NPC GameObject has AudioSource, add if needed
@@ -576,26 +537,40 @@ namespace player2_sdk
 
                 Logger.Log(this, $"Received response for NPC: {npcObject}, response: {response}");
 
-                if (response.command == null || response.command.Count == 0) return;
+                if (response.command == null || response.command.Count == 0)
+                {
+                    if (npcObject.GetComponent<Boss>())
+                    {
+                        Boss boss = npcObject.GetComponent<Boss>();
+                        boss.HandleNoFunctionCall();
+                        Logger.Log(this, "No commands received for boss");
+                    }
+
+                    return;
+                } else {
+                    Logger.Log(this, $"Received commands count: {response.command.Count}");
+                }
 
                 foreach (var functionCall in response.command)
                 {
                     try
                     {
+                        Logger.Log(this, $"Invoking functionHandler for function: {functionCall.name}");
                         var call = functionCall.ToFunctionCall(npcObject);
                         UnityEvent<FunctionCall> functionHandler = npcObject.GetComponent<Player2Npc>().functionHandler;
                         functionHandler?.Invoke(call);
+                        Logger.Log(this, $"Finished invoking functionHandler for function: {functionCall}");
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogError(
-                            $"Error invoking function call '{functionCall?.name}' for NPC {id}: {ex.Message}");
+                        //Debug.LogError(
+                            // $"Error invoking function call '{functionCall?.name}' for NPC {id}: {ex.Message}");
                     }
                 }
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Unhandled exception processing response for NPC {id}: {ex.Message}");
+                //Debug.LogError($"Unhandled exception processing response for NPC {id}: {ex.Message}");
             }
         }
 
@@ -624,11 +599,11 @@ namespace player2_sdk
         [ContextMenu("Debug Listener Status")]
         public void DebugListenerStatus()
         {
-            if (_responseListener == null)
-                Debug.Log("Response listener is NULL");
-            else
-                Debug.Log(
-                    $"Response listener status: IsListening={_responseListener.IsListening}");
+            // if (_responseListener == null)
+                //Debug.Log("Response listener is NULL");
+            // else
+                //Debug.Log(
+                    // $"Response listener status: IsListening={_responseListener.IsListening}");
         }
     }
 

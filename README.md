@@ -180,12 +180,12 @@ public class GameManager : MonoBehaviour
 // Get authentication events if needed
 var authUI = AuthenticationUI.Setup(npcManager);
 authUI.authenticationCompleted.AddListener(() => {
-    Debug.Log("Player authenticated! Enable game features.");
+    //Debug.Log("Player authenticated! Enable game features.");
     ShowGameContent();
 });
 
 authUI.authenticationFailed.AddListener((error) => {
-    Debug.LogError($"Auth failed: {error}");
+    //Debug.LogError($"Auth failed: {error}");
     ShowOfflineMode();
 });
 
@@ -277,7 +277,7 @@ namespace player2_sdk
     {
         public void HandleFunctionCall(FunctionCall functionCall)
         {
-            Debug.Log($"Handling function call: {functionCall.name}");
+            //Debug.Log($"Handling function call: {functionCall.name}");
 
             // Example: Handle a flame function call
             if (functionCall.name == "flame")
@@ -321,14 +321,14 @@ namespace player2_sdk
         void SpawnFlameCloud(float radius)
         {
             // Your VFX / gameplay code here
-            Debug.Log($"Spawning flame cloud with radius: {radius}");
+            //Debug.Log($"Spawning flame cloud with radius: {radius}");
         }
 
         void TeleportNpc(GameObject npc, Vector3 position)
         {
             // Teleport the NPC to the specified position
             npc.transform.position = position;
-            Debug.Log($"Teleported NPC to: {position}");
+            //Debug.Log($"Teleported NPC to: {position}");
         }
 
         void SpawnItem(string itemName, int quantity, Vector3 position)
@@ -336,7 +336,7 @@ namespace player2_sdk
             // Spawn items in the game world
             for (int i = 0; i < quantity; i++)
             {
-                Debug.Log($"Spawning {itemName} at {position}");
+                //Debug.Log($"Spawning {itemName} at {position}");
             }
         }
     }
@@ -506,7 +506,7 @@ public class MySTTHandler : MonoBehaviour
     
     void OnTranscriptReceived(string transcript)
     {
-        Debug.Log($"Received: {transcript}");
+        //Debug.Log($"Received: {transcript}");
         // Send transcript to NPC or handle as needed
     }
     

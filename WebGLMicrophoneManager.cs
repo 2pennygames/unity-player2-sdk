@@ -37,6 +37,7 @@ namespace player2_sdk
             Dispose();
         }
 
+        #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
         private static extern bool WebGLMicrophone_Init(string gameObjectName, string callbackMethodName);
 
@@ -51,6 +52,7 @@ namespace player2_sdk
 
         [DllImport("__Internal")]
         private static extern bool WebGLMicrophone_IsSupported();
+        #endif
 
         public event Action<float[]> OnAudioDataReceived;
         public event Action<bool> OnInitialized;
@@ -63,15 +65,15 @@ namespace player2_sdk
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (!WebGLMicrophone_IsSupported())
             {
-                Debug.LogError("WebGL Microphone: Browser does not support microphone access");
+                //Debug.LogError("WebGL Microphone: Browser does not support microphone access");
                 OnInitialized?.Invoke(false);
                 return;
             }
 
             WebGLMicrophone_Init(gameObject.name, "OnWebGLInitCallback");
 #else
-            Debug.LogWarning(
-                "WebGL Microphone: Not supported in Unity Editor. Microphone functionality will be disabled.");
+            //Debug.LogWarning(
+                // "WebGL Microphone: Not supported in Unity Editor. Microphone functionality will be disabled.");
             OnInitialized?.Invoke(false);
 #endif
         }
@@ -84,21 +86,21 @@ namespace player2_sdk
 #if UNITY_WEBGL && !UNITY_EDITOR
             if (!isInitialized)
             {
-                Debug.LogWarning("WebGL Microphone: Not initialized yet");
+                //Debug.LogWarning("WebGL Microphone: Not initialized yet");
                 return;
             }
 
             if (WebGLMicrophone_StartRecording())
             {
                 IsRecording = true;
-                Debug.Log("WebGL Microphone: Recording started");
+                //Debug.Log("WebGL Microphone: Recording started");
             }
             else
             {
-                Debug.LogError("WebGL Microphone: Failed to start recording");
+                //Debug.LogError("WebGL Microphone: Failed to start recording");
             }
 #else
-            Debug.LogWarning("WebGL Microphone: Not supported in Unity Editor");
+            //Debug.LogWarning("WebGL Microphone: Not supported in Unity Editor");
 #endif
         }
 
@@ -111,10 +113,10 @@ namespace player2_sdk
             if (WebGLMicrophone_StopRecording())
             {
                 IsRecording = false;
-                Debug.Log("WebGL Microphone: Recording stopped");
+                //Debug.Log("WebGL Microphone: Recording stopped");
             }
 #else
-            Debug.LogWarning("WebGL Microphone: Not supported in Unity Editor");
+            //Debug.LogWarning("WebGL Microphone: Not supported in Unity Editor");
 #endif
         }
 
@@ -134,7 +136,7 @@ namespace player2_sdk
         private void OnWebGLInitCallback(string success)
         {
             isInitialized = success == "1";
-            Debug.Log($"WebGL Microphone: Initialization {(isInitialized ? "successful" : "failed")}");
+            //Debug.Log($"WebGL Microphone: Initialization {(isInitialized ? "successful" : "failed")}");
             OnInitialized?.Invoke(isInitialized);
         }
 
@@ -175,7 +177,7 @@ namespace player2_sdk
             }
             catch (Exception ex)
             {
-                Debug.LogError($"WebGL Microphone: Error processing audio data: {ex.Message}");
+                //Debug.LogError($"WebGL Microphone: Error processing audio data: {ex.Message}");
             }
         }
     }

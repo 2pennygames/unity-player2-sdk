@@ -152,7 +152,7 @@ namespace player2_sdk
             cachedCharacters = new List<Character>();
 
             if (enableDebugLogs)
-                Debug.Log("SelectedCharacters: Starting periodic character fetching");
+                //Debug.Log("SelectedCharacters: Starting periodic character fetching");
 
 
             // Start the periodic fetching coroutine
@@ -166,7 +166,7 @@ namespace player2_sdk
                 var url = $"{npcManager.GetBaseUrl()}/selected_characters";
 
                 if (enableDebugLogs)
-                    Debug.Log($"SelectedCharacters: Fetching characters from {url}");
+                    //Debug.Log($"SelectedCharacters: Fetching characters from {url}");
 
                 using (var request = UnityWebRequest.Get(url))
                 {
@@ -181,8 +181,8 @@ namespace player2_sdk
                     {
                         var jsonResponse = request.downloadHandler.text;
 
-                        if (enableDebugLogs)
-                            Debug.Log($"SelectedCharacters: Received response: {jsonResponse}");
+                        // if (enableDebugLogs)
+                            //Debug.Log($"SelectedCharacters: Received response: {jsonResponse}");
 
                         var response = JsonConvert.DeserializeObject<SelectedCharactersResponse>(jsonResponse);
 
@@ -194,9 +194,9 @@ namespace player2_sdk
                                 cachedCharacters.Add(character);
                             }
 
-                            if (enableDebugLogs)
-                                Debug.Log(
-                                    $"SelectedCharacters: Successfully cached {cachedCharacters.Count} characters");
+                            // if (enableDebugLogs)
+                                //Debug.Log(
+                                    // $"SelectedCharacters: Successfully cached {cachedCharacters.Count} characters");
 
 
                             // Spawn NPCs for new characters
@@ -208,7 +208,7 @@ namespace player2_sdk
                         {
                             var error = "Invalid response format: missing characters array";
                             if (enableDebugLogs)
-                                Debug.LogWarning($"SelectedCharacters: {error}");
+                                //Debug.LogWarning($"SelectedCharacters: {error}");
                             OnFetchError?.Invoke(error);
                         }
                     }
@@ -216,7 +216,7 @@ namespace player2_sdk
                     {
                         var error = $"HTTP request failed: {request.result} - {request.error}";
                         if (enableDebugLogs)
-                            Debug.LogError($"SelectedCharacters: {error}");
+                            //Debug.LogError($"SelectedCharacters: {error}");
                         OnFetchError?.Invoke(error);
                     }
                 }
@@ -242,7 +242,7 @@ namespace player2_sdk
             if (npcManager == null)
             {
                 if (enableDebugLogs)
-                    Debug.LogWarning("SelectedCharacters: No NpcManager assigned, skipping NPC spawning");
+                    //Debug.LogWarning("SelectedCharacters: No NpcManager assigned, skipping NPC spawning");
                 return;
             }
 

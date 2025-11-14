@@ -29,7 +29,7 @@ public class SimpleAuthExample : MonoBehaviour
 
     private void OnAuthenticationComplete()
     {
-        Debug.Log("🎉 Authentication successful! Enabling game content.");
+        //Debug.Log("🎉 Authentication successful! Enabling game content.");
         SetGameObjectsActive(true);
 
         // Add any other logic you want when auth succeeds
@@ -38,7 +38,7 @@ public class SimpleAuthExample : MonoBehaviour
 
     private void OnAuthenticationFailed(string error)
     {
-        Debug.LogError($"❌ Authentication failed: {error}");
+        //Debug.LogError($"❌ Authentication failed: {error}");
 
         // Keep game objects hidden
         SetGameObjectsActive(false);

@@ -23,12 +23,12 @@ namespace player2_sdk.Editor
                 }
                 else
                 {
-                    Debug.LogError("MyComponent not found on GameObject");
+                    //Debug.LogError("MyComponent not found on GameObject");
                 }
             }
             else
             {
-                Debug.LogError("GameObject 'MyObjectName' not found in scene");
+                //Debug.LogError("GameObject 'MyObjectName' not found in scene");
             }
         }
     }

@@ -92,8 +92,8 @@ namespace player2_sdk
                     if (buttonText == null) buttonTextFallback = recordButton.GetComponent<Text>();
                 }
 
-                Debug.Log(
-                    $"Button text search result: {(buttonText != null ? $"Found TextMeshPro: {buttonText.name}" : buttonTextFallback != null ? $"Found Text: {buttonTextFallback.name}" : "Not found - button will work but text won't change")}");
+                //Debug.Log(
+                    // $"Button text search result: {(buttonText != null ? $"Found TextMeshPro: {buttonText.name}" : buttonTextFallback != null ? $"Found Text: {buttonTextFallback.name}" : "Not found - button will work but text won't change")}");
             }
 
             if (transcriptText == null)
@@ -123,8 +123,8 @@ namespace player2_sdk
                                                            text.name.ToLower().Contains("output")))
                         {
                             transcriptTextFallback = text;
-                            Debug.Log(
-                                $"STTController: Using regular Text component '{transcriptTextFallback.name}' as fallback for transcript text.");
+                            //Debug.Log(
+                                // $"STTController: Using regular Text component '{transcriptTextFallback.name}' as fallback for transcript text.");
                             break;
                         }
 
@@ -133,15 +133,15 @@ namespace player2_sdk
                             if (text != buttonTextFallback)
                             {
                                 transcriptTextFallback = text;
-                                Debug.Log(
-                                    $"STTController: Using regular Text component '{transcriptTextFallback.name}' as fallback for transcript text.");
+                                //Debug.Log(
+                                    // $"STTController: Using regular Text component '{transcriptTextFallback.name}' as fallback for transcript text.");
                                 break;
                             }
                 }
             }
 
-            if (recordButton == null || sttComponent == null)
-                Debug.LogWarning("STTController: Some components could not be auto-configured. Check inspector.");
+            // if (recordButton == null || sttComponent == null)
+                //Debug.LogWarning("STTController: Some components could not be auto-configured. Check inspector.");
         }
 
         private void CreateDefaultSprites()
@@ -149,13 +149,13 @@ namespace player2_sdk
             if (circleSprite == null)
             {
                 circleSprite = CreateCircleSprite();
-                Debug.Log("Created default circle sprite");
+                //Debug.Log("Created default circle sprite");
             }
 
             if (squareSprite == null)
             {
                 squareSprite = CreateSquareSprite();
-                Debug.Log("Created default square sprite");
+                //Debug.Log("Created default square sprite");
             }
         }
 
@@ -279,8 +279,8 @@ namespace player2_sdk
                 transcriptText.text = fullTranscript;
             else if (transcriptTextFallback != null)
                 transcriptTextFallback.text = fullTranscript;
-            else
-                Debug.LogError("No transcript text component found. Please assign one in the inspector.");
+            // else
+                //Debug.LogError("No transcript text component found. Please assign one in the inspector.");
         }
 
         public void ClearTranscripts()
@@ -292,7 +292,7 @@ namespace player2_sdk
 
         private void OnSTTFailed(string error, int code)
         {
-            Debug.LogError($"STT failed: {error} (Code: {code})");
+            //Debug.LogError($"STT failed: {error} (Code: {code})");
 
             var timestamp = DateTime.Now.ToString("HH:mm:ss");
             var errorEntry = $"[{timestamp}] ERROR: {error}\n";

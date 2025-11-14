@@ -103,7 +103,7 @@ namespace player2_sdk
 
             if (Instance.gameObject.activeInHierarchy) Instance.CheckAuthenticationStatus();
 
-            Debug.Log("AuthenticationUI: One-line setup complete! Authentication will start automatically.");
+            //Debug.Log("AuthenticationUI: One-line setup complete! Authentication will start automatically.");
             return Instance;
         }
 
@@ -122,27 +122,27 @@ namespace player2_sdk
             if (isAuthenticating || npcManager == null) return;
 
             // Skip authentication if running in WebGL on player2.game domain
-            Debug.Log("AuthenticationUI.CheckAuthenticationStatus: Checking if authentication should be skipped...");
+            //Debug.Log("AuthenticationUI.CheckAuthenticationStatus: Checking if authentication should be skipped...");
             if (npcManager.ShouldSkipAuthentication())
             {
-                Debug.Log(
-                    "AuthenticationUI.CheckAuthenticationStatus: Running on player2.game domain, skipping authentication entirely");
-                Debug.Log(
-                    $"AuthenticationUI.CheckAuthenticationStatus: Base URL being used: {npcManager.GetBaseUrl()}");
+                //Debug.Log(
+                    // "AuthenticationUI.CheckAuthenticationStatus: Running on player2.game domain, skipping authentication entirely");
+                //Debug.Log(
+                    // $"AuthenticationUI.CheckAuthenticationStatus: Base URL being used: {npcManager.GetBaseUrl()}");
 
                 // Trigger NPC initialization with empty API key (auth headers not needed for hosted)
-                Debug.Log(
-                    "AuthenticationUI.CheckAuthenticationStatus: Triggering NewApiKey with empty string for hosted auth bypass");
+                //Debug.Log(
+                    // "AuthenticationUI.CheckAuthenticationStatus: Triggering NewApiKey with empty string for hosted auth bypass");
                 npcManager.NewApiKey.Invoke("");
 
                 SetState(AuthenticationState.Success);
                 authenticationCompleted.Invoke();
-                Debug.Log("AuthenticationUI.CheckAuthenticationStatus: Authentication bypass completed successfully");
+                //Debug.Log("AuthenticationUI.CheckAuthenticationStatus: Authentication bypass completed successfully");
                 return;
             }
 
-            Debug.Log(
-                "AuthenticationUI.CheckAuthenticationStatus: Authentication not being skipped, proceeding with normal flow");
+            //Debug.Log(
+                // "AuthenticationUI.CheckAuthenticationStatus: Authentication not being skipped, proceeding with normal flow");
 
             SetState(AuthenticationState.Checking);
             CreateUI();
@@ -150,7 +150,7 @@ namespace player2_sdk
 
             try
             {
-                Debug.Log("CheckAuthenticationStatus: Attempting localhost authentication first");
+                //Debug.Log("CheckAuthenticationStatus: Attempting localhost authentication first");
                 var hasToken = await TryImmediateWebLogin();
 
                 if (hasToken)
@@ -161,7 +161,7 @@ namespace player2_sdk
                 }
                 else
                 {
-                    Debug.Log("CheckAuthenticationStatus: Localhost auth failed, starting device flow");
+                    //Debug.Log("CheckAuthenticationStatus: Localhost auth failed, starting device flow");
                     SetState(AuthenticationState.RequiresAuth);
                     await StartDeviceFlow();
                 }
@@ -380,7 +380,7 @@ namespace player2_sdk
                 }
                 else
                 {
-                    Debug.LogWarning($"Failed to load Player2 logo from URL: {www.error}");
+                    //Debug.LogWarning($"Failed to load Player2 logo from URL: {www.error}");
                     CreateFallbackLogo();
                 }
             }
@@ -467,21 +467,21 @@ namespace player2_sdk
         private async Task<bool> TryImmediateWebLogin()
         {
             // Skip localhost authentication if running in WebGL on player2.game domain
-            Debug.Log(
-                "AuthenticationUI.TryImmediateWebLogin: Checking if localhost authentication should be skipped...");
+            //Debug.Log(
+                // "AuthenticationUI.TryImmediateWebLogin: Checking if localhost authentication should be skipped...");
             if (npcManager.ShouldSkipAuthentication())
             {
-                Debug.Log(
-                    "AuthenticationUI.TryImmediateWebLogin: Running on player2.game domain, skipping localhost authentication");
-                Debug.Log($"AuthenticationUI.TryImmediateWebLogin: API requests will use: {npcManager.GetBaseUrl()}");
+                //Debug.Log(
+                    // "AuthenticationUI.TryImmediateWebLogin: Running on player2.game domain, skipping localhost authentication");
+                //Debug.Log($"AuthenticationUI.TryImmediateWebLogin: API requests will use: {npcManager.GetBaseUrl()}");
                 return true;
             }
 
-            Debug.Log(
-                "AuthenticationUI.TryImmediateWebLogin: Not on player2.game domain, proceeding with localhost authentication");
+            //Debug.Log(
+                // "AuthenticationUI.TryImmediateWebLogin: Not on player2.game domain, proceeding with localhost authentication");
 
             var url = $"http://localhost:4315/v1/login/web/{npcManager.clientId}";
-            Debug.Log($"TryImmediateWebLogin: Attempting localhost auth at: {url}");
+            //Debug.Log($"TryImmediateWebLogin: Attempting localhost auth at: {url}");
 
             using var request = UnityWebRequest.PostWwwForm(url, string.Empty);
             request.SetRequestHeader("Accept", "application/json");
@@ -496,26 +496,26 @@ namespace player2_sdk
                         var resp = JsonConvert.DeserializeObject<TokenResponse>(text);
                         if (!string.IsNullOrEmpty(resp?.p2Key))
                         {
-                            Debug.Log("TryImmediateWebLogin: Got API key, validating with health check...");
+                            //Debug.Log("TryImmediateWebLogin: Got API key, validating with health check...");
                             var tokenValid = await TokenValidator.ValidateAndSetTokenAsync(resp.p2Key, npcManager);
                             if (tokenValid)
                             {
-                                Debug.Log("TryImmediateWebLogin: Token validation successful");
+                                //Debug.Log("TryImmediateWebLogin: Token validation successful");
                                 return true;
                             }
 
-                            Debug.LogError("TryImmediateWebLogin: Token validation failed");
+                            //Debug.LogError("TryImmediateWebLogin: Token validation failed");
                             return false;
                         }
                     }
                     catch (Exception ex)
                     {
-                        Debug.LogWarning($"Failed to parse immediate web login response: {ex.Message}");
+                        //Debug.LogWarning($"Failed to parse immediate web login response: {ex.Message}");
                     }
             }
             else
             {
-                Debug.Log($"TryImmediateWebLogin: Failed to connect to Player2 App: {request.error}");
+                //Debug.Log($"TryImmediateWebLogin: Failed to connect to Player2 App: {request.error}");
             }
 
             return false;
@@ -605,11 +605,11 @@ namespace player2_sdk
                         var response = JsonConvert.DeserializeObject<TokenResponse>(request.downloadHandler.text);
                         if (!string.IsNullOrEmpty(response?.p2Key))
                         {
-                            Debug.Log("PollForToken: Got token, validating with health check...");
+                            //Debug.Log("PollForToken: Got token, validating with health check...");
                             var tokenValid = await TokenValidator.ValidateAndSetTokenAsync(response.p2Key, npcManager);
                             if (tokenValid)
                             {
-                                Debug.Log("PollForToken: Token validation successful");
+                                //Debug.Log("PollForToken: Token validation successful");
                                 SetState(AuthenticationState.Success);
                                 HideOverlay();
                                 authenticationCompleted.Invoke();
@@ -617,7 +617,7 @@ namespace player2_sdk
                                 return;
                             }
 
-                            Debug.LogError("PollForToken: Token validation failed, continuing to poll");
+                            //Debug.LogError("PollForToken: Token validation failed, continuing to poll");
                         }
                     }
                 }
@@ -633,8 +633,8 @@ namespace player2_sdk
                 {
                     var traceId = request.GetResponseHeader("X-Player2-Trace-Id");
                     var traceInfo = !string.IsNullOrEmpty(traceId) ? $" (X-Player2-Trace-Id: {traceId})" : "";
-                    Debug.LogError(
-                        $"Failed to get token: HTTP {request.responseCode} - {request.error} - Response: {request.downloadHandler.text}{traceInfo}");
+                    //Debug.LogError(
+                        // $"Failed to get token: HTTP {request.responseCode} - {request.error} - Response: {request.downloadHandler.text}{traceInfo}");
                     SetState(AuthenticationState.Error, $"Authentication failed: {request.error}");
                     isAuthenticating = false;
                     return;

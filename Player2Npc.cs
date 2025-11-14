@@ -49,13 +49,13 @@ namespace player2_sdk
 
         [RemoveIfCustomNpc] [SerializeField] private string shortName = "Victor";
 
-        [RemoveIfCustomNpc] [SerializeField] private string fullName = "Victor J. Johnson";
+        [RemoveIfCustomNpc] [SerializeField] internal string fullName = "Victor J. Johnson";
 
         [RemoveIfCustomNpc]
         [Tooltip(
             "A description of the NPC, written in first person, used for the LLM to understand the character better.")]
         [SerializeField]
-        private string characterDescription = "I am crazed scientist on the hunt for gold!";
+        internal string characterDescription = "I am crazed scientist on the hunt for gold!";
 
         [Tooltip(
             "The system prompt should be written the third person, describing the NPC's personality and behavior.")]
@@ -102,10 +102,10 @@ namespace player2_sdk
             functionHandler = new UnityEvent<FunctionCall>();
             serializableFunctions = new List<SerializableFunction>();
 
-            Debug.Log("Starting Player2Npc with NPC: " + fullName);
+            //Debug.Log("Starting Player2Npc with NPC: " + fullName);
             if (npcManager == null)
             {
-                Debug.LogError("Player2Npc requires an NpcManager reference. Please assign it in the inspector.", this);
+                //Debug.LogError("Player2Npc requires an NpcManager reference. Please assign it in the inspector.", this);
                 return;
             }
 
@@ -132,7 +132,7 @@ namespace player2_sdk
                     voiceId = character.voice_ids.Count > 0 ? character.voice_ids[0] : voiceId;
                     _npcID = npcId;
 
-                    Debug.Log($"Changed custom NPC to '{fullName}' with ID: {_npcID}");
+                    //Debug.Log($"Changed custom NPC to '{fullName}' with ID: {_npcID}");
                 });
             }
             else
@@ -184,7 +184,7 @@ namespace player2_sdk
                 {
                     if (voices != null && voices.voices != null && voices.voices.Count > 0)
                     {
-                        Debug.Log($"Player2Npc: Auto-fetched {voices.voices.Count} TTS voices");
+                        //Debug.Log($"Player2Npc: Auto-fetched {voices.voices.Count} TTS voices");
 
                         // If the current voiceId is the default one and we have voices available,
                         // you could optionally set it to the first available voice
@@ -203,37 +203,58 @@ namespace player2_sdk
 
         public void ChangedCustomCharacter(Character character, string npcId)
         {
-            Debug.Log(character.name);
+            //Debug.Log(character.name);
             OnChangedCustomCharacter.Invoke(character, npcId);
         }
 
         internal void SendMessageToNPC(string message)
         {
+            if (UIManager.Instance.currentInteractingSummonable != null)
+            {
+                UIManager.Instance.DisableSendButton();
+                UIManager.Instance.SetChatState(ChatState.PROCESSING);
+
+                StartCoroutine(npcManager.PlayThinkingTextAnimation());
+            }
+
             _ = SendChatMessageAsync(message);
         }
 
         private async Awaitable SpawnNpcAsync()
         {
+            if (GetComponent<Boss>())
+            {
+                Boss boss = GetComponent<Boss>();
+
+                functionHandler.AddListener(boss.FunctionHandler);
+
+                foreach (Move move in boss.moves)
+                {
+                    AddSerializableFunction(move.ToFunction());
+                    boss.moveMap.Add(move.name, move);
+                }
+            }
+
             if (npcManager == null)
             {
-                Debug.LogError("Player2Npc.SpawnNpcAsync called but npcManager is NOT assigned. Aborting spawn.");
+                //Debug.LogError("Player2Npc.SpawnNpcAsync called but npcManager is NOT assigned. Aborting spawn.");
                 return;
             }
 
             // Ensure we have a valid API key before attempting to spawn (unless auth is bypassed for hosted scenarios)
             if (string.IsNullOrEmpty(npcManager.ApiKey) && !npcManager.ShouldSkipAuthentication())
             {
-                Debug.LogError(
-                    $"Cannot spawn NPC '{fullName}': No API key available. Please ensure authentication is completed first.");
-                return;
+                //Debug.LogError(
+                    // $"Cannot spawn NPC '{fullName}': No API key available. Please ensure authentication is completed first.");
+                // return;
             }
 
-            if (npcManager.ShouldSkipAuthentication())
-                Debug.Log($"Spawning NPC '{fullName}' in hosted mode (no API key required)");
-            else
-                Debug.Log($"Spawning NPC '{fullName}' with API key authentication");
+            // if (npcManager.ShouldSkipAuthentication())
+                //Debug.Log($"Spawning NPC '{fullName}' in hosted mode (no API key required)");
+            // else
+                //Debug.Log($"Spawning NPC '{fullName}' with API key authentication");
 
-            Debug.Log($"Spawning NPC '{fullName}' with voice ID: {voiceId}");
+            Logger.Log("NpcManager", $"Spawning NPC '{fullName}' with voice ID: {voiceId}, with commands count: {serializableFunctions.Count}");
 
             var spawnData = new SpawnNpc
             {
@@ -253,7 +274,7 @@ namespace player2_sdk
             };
 
             var url = $"{npcManager.GetBaseUrl()}/npcs/spawn";
-            Debug.Log($"Spawning NPC at URL: {url}");
+            //Debug.Log($"Spawning NPC at URL: {url}");
 
             var json = JsonConvert.SerializeObject(spawnData, npcManager.JsonSerializerSettings);
             var bodyRaw = Encoding.UTF8.GetBytes(json);
@@ -265,12 +286,12 @@ namespace player2_sdk
             // Skip authentication if running on player2.game domain (cookies will handle auth)
             if (!npcManager.ShouldSkipAuthentication())
             {
-                Debug.Log("Setting Authorization header with API key");
+                //Debug.Log("Setting Authorization header with API key");
                 request.SetRequestHeader("Authorization", $"Bearer {npcManager.ApiKey}");
             }
             else
             {
-                Debug.Log("Skipping Authorization header (WebGL on player2.game domain - using cookies for auth)");
+                //Debug.Log("Skipping Authorization header (WebGL on player2.game domain - using cookies for auth)");
             }
 
             request.SetRequestHeader("Content-Type", "application/json");
@@ -283,12 +304,12 @@ namespace player2_sdk
             if (request.result == UnityWebRequest.Result.Success)
             {
                 _npcID = request.downloadHandler.text.Trim('"');
-                Debug.Log($"NPC spawned successfully with ID: {_npcID}");
+                //Debug.Log($"NPC spawned successfully with ID: {_npcID}");
 
                 if (!string.IsNullOrEmpty(_npcID) && npcManager != null)
                     npcManager.RegisterNpc(_npcID, gameObject);
-                else
-                    Debug.LogError($"Invalid NPC ID or null npcManager: ID={_npcID}, Manager={npcManager}");
+                // else
+                    //Debug.LogError($"Invalid NPC ID or null npcManager: ID={_npcID}, Manager={npcManager}");
             }
             else
             {
@@ -296,7 +317,7 @@ namespace player2_sdk
                 var traceInfo = !string.IsNullOrEmpty(traceId) ? $" (X-Player2-Trace-Id: {traceId})" : "";
                 var error =
                     $"Failed to spawn NPC: {request.error} - Response: {request.downloadHandler.text}{traceInfo}";
-                Debug.LogError(error);
+                //Debug.LogError(error);
             }
         }
 
@@ -306,11 +327,11 @@ namespace player2_sdk
 
             try
             {
-                Debug.Log("Sending message to NPC: " + message);
+                //Debug.Log("Sending message to NPC: " + message);
 
                 if (string.IsNullOrEmpty(_npcID))
                 {
-                    Debug.LogWarning("NPC ID is not set! Cannot send message.");
+                    //Debug.LogWarning("NPC ID is not set! Cannot send message.");
                     return;
                 }
 
@@ -325,11 +346,11 @@ namespace player2_sdk
             }
             catch (OperationCanceledException)
             {
-                Debug.Log("Chat message send operation was cancelled");
+                //Debug.Log("Chat message send operation was cancelled");
             }
             catch (Exception ex)
             {
-                Debug.LogError($"Unexpected error sending chat message: {ex.Message}");
+                //Debug.LogError($"Unexpected error sending chat message: {ex.Message}");
             }
         }
 
@@ -337,15 +358,15 @@ namespace player2_sdk
         {
             if (npcManager == null)
             {
-                Debug.LogError("Cannot send chat request because npcManager is null.");
+                //Debug.LogError("Cannot send chat request because npcManager is null.");
                 return;
             }
 
             // Ensure we have a valid API key before attempting to send chat (unless auth is bypassed for hosted scenarios)
             if (string.IsNullOrEmpty(npcManager.ApiKey) && !npcManager.ShouldSkipAuthentication())
             {
-                Debug.LogError(
-                    "Cannot send chat message: No API key available. Please ensure authentication is completed first.");
+                //Debug.LogError(
+                    // "Cannot send chat message: No API key available. Please ensure authentication is completed first.");
                 return;
             }
 
@@ -370,7 +391,7 @@ namespace player2_sdk
 
             if (request.result == UnityWebRequest.Result.Success)
             {
-                Debug.Log($"Message sent successfully to NPC {_npcID}");
+                //Debug.Log($"Message sent successfully to NPC {_npcID}");
             }
             else
             {
@@ -378,7 +399,7 @@ namespace player2_sdk
                 var traceInfo = !string.IsNullOrEmpty(traceId) ? $" (X-Player2-Trace-Id: {traceId})" : "";
                 var error =
                     $"Failed to send message: {request.error} - Response: {request.downloadHandler.text}{traceInfo}";
-                Debug.LogError(error);
+                //Debug.LogError(error);
             }
         }
     }

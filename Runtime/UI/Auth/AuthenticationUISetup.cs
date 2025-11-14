@@ -64,7 +64,7 @@ namespace player2_sdk
             // Assign references to AuthenticationUI component
             AssignUIReferences(authUI, canvas, panel);
 
-            Debug.Log("Authentication UI created successfully!");
+            //Debug.Log("Authentication UI created successfully!");
         }
 
         private Canvas CreateOverlayCanvas(GameObject parent)
@@ -288,9 +288,9 @@ namespace player2_sdk
         {
             authUI.npcManager = npcManager;
 
-            Debug.Log(
-                "AuthenticationUI configured. Note: The new AuthenticationUI automatically creates its own UI, so manual UI setup is no longer needed.");
-            Debug.Log("Consider using AuthenticationUI.Setup(npcManager) instead for simpler integration.");
+            //Debug.Log(
+                // "AuthenticationUI configured. Note: The new AuthenticationUI automatically creates its own UI, so manual UI setup is no longer needed.");
+            //Debug.Log("Consider using AuthenticationUI.Setup(npcManager) instead for simpler integration.");
         }
     }
 }
